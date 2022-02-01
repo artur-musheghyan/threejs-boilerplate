@@ -9,6 +9,7 @@ import {
   WebGLRenderer,
 } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { CustomStats } from "../utils/custom-stats";
 import { Brick } from "./brick";
 
 export class App {
@@ -19,12 +20,14 @@ export class App {
     0.1,
     10000
   );
-  private readonly renderer = new WebGLRenderer({
+  public readonly renderer = new WebGLRenderer({
     antialias: true,
     canvas: document.getElementById("main-canvas") as HTMLCanvasElement,
   });
 
   private brick: Brick;
+  private _mixer!: AnimationMixer;
+  private _stats: CustomStats;
 
   constructor() {
     const gltfLoader = new GLTFLoader();
@@ -51,10 +54,12 @@ export class App {
       this.scene.add(gltf.scene);
 
       // Animation
-      const mixer = new AnimationMixer(gltf.scene);
-      const action = mixer.clipAction(gltf.animations[2]);
+      this._mixer = new AnimationMixer(gltf.scene);
+      const action = this._mixer.clipAction(gltf.animations[2]);
       action.play();
     });
+
+    this._stats = new CustomStats(this.renderer);
 
     this.render();
   }
@@ -69,6 +74,11 @@ export class App {
     this.renderer.render(this.scene, this.camera);
     requestAnimationFrame(() => this.render());
 
+    if (this._mixer) {
+      this._mixer.update(0.01);
+    }
+
     this.adjustCanvasSize();
+    this._stats.update();
   }
 }
