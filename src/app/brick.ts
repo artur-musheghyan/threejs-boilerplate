@@ -1,9 +1,13 @@
-import { BoxGeometry, Color, Mesh, MeshBasicMaterial } from 'three';
+import { BoxGeometry, Mesh, MeshPhongMaterial } from "three";
 
 export class Brick extends Mesh {
-  constructor(size: number, color: Color) {
+  constructor() {
     super();
-    this.geometry = new BoxGeometry(size, size, size);
-    this.material = new MeshBasicMaterial({ color });
+    this.geometry = new BoxGeometry(3, 3, 3);
+    this.material = new MeshPhongMaterial({
+      color: 0x4040c0,
+      shininess: 0.4,
+      specular: 0x808080,
+    });
   }
 }
