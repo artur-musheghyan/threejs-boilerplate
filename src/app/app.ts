@@ -1,5 +1,6 @@
 import {
   AmbientLight,
+  AnimationMixer,
   Color,
   PerspectiveCamera,
   PointLight,
@@ -7,6 +8,7 @@ import {
   Vector3,
   WebGLRenderer,
 } from "three";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { Brick } from "./brick";
 
 export class App {
@@ -25,6 +27,7 @@ export class App {
   private brick: Brick;
 
   constructor() {
+    const gltfLoader = new GLTFLoader();
     this.scene.add(new AmbientLight(0x404040));
 
     const light = new PointLight(0xffffff, 1, 100);
@@ -41,6 +44,17 @@ export class App {
 
     this.renderer.setSize(innerWidth, innerHeight);
     this.renderer.setClearColor(new Color("rgb(0,0,0)"));
+
+    gltfLoader.load("/assets/Fox/glTF/Fox.gltf", (gltf) => {
+      gltf.scene.scale.set(0.025, 0.025, 0.025);
+      gltf.scene.position.set(-2, 0, 1);
+      this.scene.add(gltf.scene);
+
+      // Animation
+      const mixer = new AnimationMixer(gltf.scene);
+      const action = mixer.clipAction(gltf.animations[2]);
+      action.play();
+    });
 
     this.render();
   }
