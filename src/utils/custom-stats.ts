@@ -9,8 +9,10 @@ export class CustomStats {
   private _geometriesPanel: Stats.Panel;
 
   constructor(renderer: WebGLRenderer) {
-    this._renderer = renderer;
     this._stats = Stats();
+
+    this._renderer = renderer;
+
     document.body.appendChild(this._stats.dom);
 
     // @ts-ignore
@@ -27,10 +29,11 @@ export class CustomStats {
     this._stats.showPanel(3);
   }
 
-  public update(): void {
+  public update = (): void => {
     this._stats.update();
+
     this._drawCallsPanel.update(this._renderer.info.render.calls, 0);
     this._texturesPanel.update(this._renderer.info.memory.textures, 0);
     this._geometriesPanel.update(this._renderer.info.memory.geometries, 0);
-  }
+  };
 }
