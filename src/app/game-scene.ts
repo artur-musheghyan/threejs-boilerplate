@@ -1,6 +1,6 @@
 import { AxesHelper, Scene } from "three";
-import { Brick } from "./brick";
-import { DEBUG } from "./constants";
+import { DEBUG } from "../constants/constants";
+import { Brick } from "../views/brick";
 
 export class GameScene extends Scene {
   constructor() {
@@ -13,5 +13,9 @@ export class GameScene extends Scene {
 
     const brick = new Brick();
     this.add(brick);
+
+    const uiBrick = new Brick();
+    uiBrick.position.set(-100, -100, -120);
+    this.add(uiBrick);
   }
 }

@@ -1,14 +1,18 @@
-import { CameraHelper, PerspectiveCamera, Vector3 } from "three";
+import { CameraHelper, OrthographicCamera } from "three";
 import { DEBUG } from "../constants/constants";
 import { app, gui } from "./main";
 
-export class GameCamera extends PerspectiveCamera {
+const pixelSize = 20;
+
+export class UICamera extends OrthographicCamera {
   private _helper: CameraHelper;
 
   constructor() {
-    super(45, innerWidth / innerHeight, 30, 65);
-    this.position.set(0, 40, 20);
-    this._centralize();
+    super(-2, 4, -2, 4);
+    this.position.set(-100, -100, -100);
+    this.updateRatio(innerWidth / innerHeight);
+    this.near = 5;
+    this.far = 60;
 
     if (DEBUG) {
       // Add camera helper
@@ -16,30 +20,24 @@ export class GameCamera extends PerspectiveCamera {
       app.scene.add(this._helper);
 
       // Add camera GUI
-      const cameraUI = gui.addFolder("camera");
-      cameraUI.add(this, "fov", 20, 100, 0.001).onChange(this._updateHelper);
+      const cameraUI = gui.addFolder("ui camera");
       cameraUI.add(this, "near", 1, 30, 0.001).onChange(this._updateHelper);
       cameraUI.add(this, "far", 40, 200, 0.001).onChange(this._updateHelper);
       cameraUI.add(this.position, "x", -100, 100, 0.001);
-      // .onChange(this._centralize);
       cameraUI.add(this.position, "y", -100, 100, 0.001);
-      // .onChange(this._centralize);
       cameraUI.add(this.position, "z", -100, 100, 0.001);
-      // .onChange(this._centralize);
-      cameraUI.add(
-        {
-          lookAt: () => {
-            this._centralize();
-          },
-        },
-        "lookAt"
-      );
     }
   }
 
-  private _centralize = (): void => {
-    this.lookAt(new Vector3(0, 0, 0));
-  };
+  public updateRatio(ratio: number): void {
+    const w = pixelSize * ratio;
+    const h = pixelSize;
+
+    this.left = -w / 2;
+    this.right = w;
+    this.top = -h / 2;
+    this.bottom = h;
+  }
 
   private _updateHelper = (): void => {
     this._helper.update();

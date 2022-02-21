@@ -4,7 +4,7 @@ console.warn(__dirname);
 
 module.exports = {
   mode: "development",
-  entry: "./src/main.ts",
+  entry: "./src/app/main.ts",
   devServer: {
     port: 9000,
     static: {

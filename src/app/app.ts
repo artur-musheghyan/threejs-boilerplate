@@ -1,14 +1,16 @@
-import { Color, PerspectiveCamera, Vector3, WebGLRenderer } from "three";
+import { PerspectiveCamera, Vector3, WebGLRenderer } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { DEBUG } from "../constants/constants";
 import { CustomStats } from "../utils/custom-stats";
-import { DEBUG } from "./constants";
 import { GameCamera } from "./game-camera";
 import { GameScene } from "./game-scene";
+import { UICamera } from "./ui-camera";
 
 export class App {
   private _scene: GameScene;
   private _camera: GameCamera;
   private _debugCamera: PerspectiveCamera;
+  private _uiCamera: UICamera;
   private _renderer: WebGLRenderer;
   private _stats: CustomStats;
   private _controls: OrbitControls;
@@ -36,6 +38,7 @@ export class App {
   public initialize(): void {
     this._initScene();
     this._initGameCamera();
+    this._initUICamera();
     this._initViewPortCamera();
     this._initRenderer();
     this._initStats();
@@ -67,17 +70,21 @@ export class App {
     };
 
     if (DEBUG) {
-      cameraDimensions.width *= 0.3;
-      cameraDimensions.height *= 0.3;
+      const debugAreaSizeRatio = 0.2;
+      cameraDimensions.width *= debugAreaSizeRatio;
+      cameraDimensions.height *= debugAreaSizeRatio;
       this._renderer.setViewport(0, 0, innerWidth, innerHeight);
       this._debugCamera.aspect = innerWidth / innerHeight;
       this._debugCamera.updateProjectionMatrix();
       this._renderer.setScissor(0, 0, innerWidth, innerHeight);
       this._renderer.setScissorTest(true);
-      this._renderer.setClearColor(new Color(0.7, 0.5, 0.5));
+      // this._renderer.setClearColor(new Color(0.7, 0.5, 0.5));
       this._renderer.render(this._scene, this._debugCamera);
     }
 
+    this._renderer.autoClear = false;
+
+    // GameCamera
     this._renderer.setViewport(
       0,
       0,
@@ -93,8 +100,27 @@ export class App {
       cameraDimensions.height
     );
     this._renderer.setScissorTest(true);
-    this._renderer.setClearColor(new Color(0.5, 0.5, 0.7));
+    // this._renderer.setClearColor(new Color(0.5, 0.5, 0.7));
     this._renderer.render(this._scene, this._camera);
+
+    // UICamera
+    this._renderer.setViewport(
+      0,
+      0,
+      cameraDimensions.width,
+      cameraDimensions.height
+    );
+
+    this._uiCamera.updateRatio(innerWidth / innerHeight);
+    this._uiCamera.updateProjectionMatrix();
+    this._renderer.setScissor(
+      0,
+      0,
+      cameraDimensions.width,
+      cameraDimensions.height
+    );
+    this._renderer.setScissorTest(true);
+    this._renderer.render(this._scene, this._uiCamera);
 
     requestAnimationFrame(() => this._render());
   };
@@ -113,6 +139,10 @@ export class App {
 
   private _initGameCamera = (): void => {
     this._camera = new GameCamera();
+  };
+
+  private _initUICamera = (): void => {
+    this._uiCamera = new UICamera();
   };
 
   private _initViewPortCamera = (): void => {

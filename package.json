@@ -8,6 +8,7 @@
     "lint": "eslint \"**/*.ts\""
   },
   "dependencies": {
+    "@armathai/lego": "^4.0.2",
     "@types/dat.gui": "^0.7.7",
     "dat.gui": "^0.7.7",
     "file-loader": "^6.2.0",
