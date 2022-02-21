@@ -1,4 +1,4 @@
-import { BoxGeometry, Mesh, MeshPhongMaterial } from "three";
+import { BoxGeometry, Mesh, MeshMatcapMaterial } from "three";
 
 export class Brick extends Mesh {
   private static customGeometry: BoxGeometry = new BoxGeometry(3, 3, 3);
@@ -6,10 +6,6 @@ export class Brick extends Mesh {
   constructor() {
     super();
     this.geometry = Brick.customGeometry;
-    this.material = new MeshPhongMaterial({
-      color: 0x4040c0,
-      shininess: 0.4,
-      specular: 0x808080,
-    });
+    this.material = new MeshMatcapMaterial();
   }
 }
