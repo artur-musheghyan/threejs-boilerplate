@@ -2,7 +2,7 @@ import { CameraHelper, OrthographicCamera } from "three";
 import { DEBUG } from "../constants/constants";
 import { app, gui } from "./main";
 
-const pixelSize = 20;
+const pixelSize = 100;
 
 export class UICamera extends OrthographicCamera {
   private _helper: CameraHelper;
@@ -12,7 +12,7 @@ export class UICamera extends OrthographicCamera {
     this.position.set(-100, -100, -100);
     this.updateRatio(innerWidth / innerHeight);
     this.near = 5;
-    this.far = 60;
+    this.far = 200;
 
     if (DEBUG) {
       // Add camera helper
@@ -21,8 +21,8 @@ export class UICamera extends OrthographicCamera {
 
       // Add camera GUI
       const cameraUI = gui.addFolder("ui camera");
-      cameraUI.add(this, "near", 1, 30, 0.001).onChange(this._updateHelper);
-      cameraUI.add(this, "far", 40, 200, 0.001).onChange(this._updateHelper);
+      cameraUI.add(this, "near", 1, 200, 0.001).onChange(this._updateHelper);
+      cameraUI.add(this, "far", 10, 200, 0.001).onChange(this._updateHelper);
       cameraUI.add(this.position, "x", -100, 100, 0.001);
       cameraUI.add(this.position, "y", -100, 100, 0.001);
       cameraUI.add(this.position, "z", -100, 100, 0.001);
@@ -32,7 +32,6 @@ export class UICamera extends OrthographicCamera {
   public updateRatio(ratio: number): void {
     const w = pixelSize * ratio;
     const h = pixelSize;
-
     this.left = -w / 2;
     this.right = w;
     this.top = -h / 2;

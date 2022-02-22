@@ -1,6 +1,6 @@
 import { PerspectiveCamera, Vector3, WebGLRenderer } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { DEBUG } from "../constants/constants";
+import { DEBUG, miniCameraSize } from "../constants/constants";
 import { CustomStats } from "../utils/custom-stats";
 import { GameCamera } from "./game-camera";
 import { GameScene } from "./game-scene";
@@ -60,19 +60,19 @@ export class App {
   };
 
   private _render = (): void => {
-    this._stats.update();
-
-    this._adjustCanvasSize();
-
     const cameraDimensions = {
       width: innerWidth,
       height: innerHeight,
     };
 
+    this._stats.update();
+    this._adjustCanvasSize();
+
+    this._renderer.autoClear = false;
+
     if (DEBUG) {
-      const debugAreaSizeRatio = 0.2;
-      cameraDimensions.width *= debugAreaSizeRatio;
-      cameraDimensions.height *= debugAreaSizeRatio;
+      cameraDimensions.width *= miniCameraSize;
+      cameraDimensions.height *= miniCameraSize;
       this._renderer.setViewport(0, 0, innerWidth, innerHeight);
       this._debugCamera.aspect = innerWidth / innerHeight;
       this._debugCamera.updateProjectionMatrix();
@@ -81,8 +81,6 @@ export class App {
       // this._renderer.setClearColor(new Color(0.7, 0.5, 0.5));
       this._renderer.render(this._scene, this._debugCamera);
     }
-
-    this._renderer.autoClear = false;
 
     // GameCamera
     this._renderer.setViewport(

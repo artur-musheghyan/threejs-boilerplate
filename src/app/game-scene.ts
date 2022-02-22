@@ -1,6 +1,7 @@
 import { AxesHelper, Scene } from "three";
 import { DEBUG } from "../constants/constants";
-import { Brick } from "../views/brick";
+import { GameView } from "./game-view";
+import { UIView } from "./ui-view";
 
 export class GameScene extends Scene {
   constructor() {
@@ -11,11 +12,11 @@ export class GameScene extends Scene {
       this.add(axesHelper);
     }
 
-    const brick = new Brick();
-    this.add(brick);
+    const gameView = new GameView();
+    this.add(gameView);
 
-    const uiBrick = new Brick();
-    uiBrick.position.set(-100, -100, -120);
-    this.add(uiBrick);
+    const uiView = new UIView();
+    uiView.position.set(-100, -100, -120);
+    this.add(uiView);
   }
 }
