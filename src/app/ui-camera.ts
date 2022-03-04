@@ -8,16 +8,17 @@ export class UICamera extends OrthographicCamera {
   private _helper: CameraHelper;
 
   constructor() {
-    super(-2, 4, -2, 4);
-    this.position.set(-100, -100, -100);
+    super(0, 0, 4, 4);
+    this.position.set(0, 0, 200);
     this.updateRatio(innerWidth / innerHeight);
     this.near = 5;
-    this.far = 200;
+    this.far = 300;
 
     if (DEBUG) {
       // Add camera helper
       this._helper = new CameraHelper(this);
       app.scene.add(this._helper);
+      this.updateRatio(innerWidth / innerHeight);
 
       // Add camera GUI
       const cameraUI = gui.addFolder("ui camera");
@@ -33,9 +34,9 @@ export class UICamera extends OrthographicCamera {
     const w = pixelSize * ratio;
     const h = pixelSize;
     this.left = -w / 2;
-    this.right = w;
-    this.top = -h / 2;
-    this.bottom = h;
+    this.right = w / 2;
+    this.top = h / 2;
+    this.bottom = -h / 2;
   }
 
   private _updateHelper = (): void => {

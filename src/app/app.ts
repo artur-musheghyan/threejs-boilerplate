@@ -1,22 +1,32 @@
-import { PerspectiveCamera, Vector3, WebGLRenderer } from "three";
+import {
+  PerspectiveCamera,
+  Raycaster,
+  Vector2,
+  Vector3,
+  WebGLRenderer,
+} from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { DEBUG, miniCameraSize } from "../constants/constants";
 import { CustomStats } from "../utils/custom-stats";
 import { GameCamera } from "./game-camera";
 import { GameScene } from "./game-scene";
 import { UICamera } from "./ui-camera";
+import { UIScene } from "./ui-scene";
 
 export class App {
   private _scene: GameScene;
+  private _uiScene: UIScene;
   private _camera: GameCamera;
   private _debugCamera: PerspectiveCamera;
   private _uiCamera: UICamera;
   private _renderer: WebGLRenderer;
   private _stats: CustomStats;
   private _controls: OrbitControls;
+  private _raycaster: Raycaster;
 
   constructor() {
     // addEventListener("resize", this._onResize);
+    document.addEventListener("pointermove", this._onPointerMove);
   }
 
   public get scene(): GameScene {
@@ -44,9 +54,27 @@ export class App {
     this._initStats();
     this._initControls();
 
+    this._raycaster = new Raycaster();
+
     // Start update loop
     this._render();
   }
+
+  private _onPointerMove = (event: PointerEvent) => {
+    const pointer = new Vector2();
+    pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+    pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    this._raycaster.setFromCamera(pointer, this._uiCamera);
+    const intersects = this._raycaster.intersectObjects(
+      this._uiScene.children,
+      false
+    );
+
+    if (intersects.length > 0) {
+      // console.log("HIT", ...intersects.map((i) => i.object.name), intersects);
+    }
+  };
 
   // private _onResize = (): void => {
   //   this._adjustCanvasSize();
@@ -80,6 +108,7 @@ export class App {
       this._renderer.setScissorTest(true);
       // this._renderer.setClearColor(new Color(0.7, 0.5, 0.5));
       this._renderer.render(this._scene, this._debugCamera);
+      this._renderer.render(this._uiScene, this._debugCamera);
     }
 
     // GameCamera
@@ -118,13 +147,17 @@ export class App {
       cameraDimensions.height
     );
     this._renderer.setScissorTest(true);
-    this._renderer.render(this._scene, this._uiCamera);
+    this._renderer.render(this._uiScene, this._uiCamera);
 
     requestAnimationFrame(() => this._render());
   };
 
   private _initScene = (): void => {
     this._scene = new GameScene();
+
+    this._uiScene = new UIScene();
+
+    this._uiScene.position.set(0, 0, 100);
   };
 
   private _initRenderer = (): void => {
