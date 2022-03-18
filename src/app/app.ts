@@ -5,11 +5,13 @@ import {
   Vector3,
   WebGLRenderer,
 } from "three";
+import { RotationJoystickControls } from "three-joystick";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { DEBUG, miniCameraSize } from "../constants/constants";
 import { CustomStats } from "../utils/custom-stats";
 import { GameCamera } from "./game-camera";
 import { GameScene } from "./game-scene";
+import { Joystick } from "./joystick";
 import { UICamera } from "./ui-camera";
 import { UIScene } from "./ui-scene";
 
@@ -23,6 +25,7 @@ export class App {
   private _stats: CustomStats;
   private _controls: OrbitControls;
   private _raycaster: Raycaster;
+  private _joystickControls: RotationJoystickControls;
 
   constructor() {
     // addEventListener("resize", this._onResize);
@@ -33,7 +36,7 @@ export class App {
     return this._scene;
   }
 
-  public get camera(): PerspectiveCamera {
+  public get camera(): GameCamera {
     return this._camera;
   }
 
@@ -53,6 +56,7 @@ export class App {
     this._initRenderer();
     this._initStats();
     this._initControls();
+    this._initJoystick();
 
     this._raycaster = new Raycaster();
 
@@ -88,6 +92,9 @@ export class App {
   };
 
   private _render = (): void => {
+    this._joystickControls.update();
+    this._scene.updateLoop();
+
     const cameraDimensions = {
       width: innerWidth,
       height: innerHeight,
@@ -200,5 +207,9 @@ export class App {
         document.getElementById("main-canvas") as HTMLCanvasElement
       );
     }
+  };
+
+  private _initJoystick = (): void => {
+    this._joystickControls = new Joystick(this._camera, this._scene);
   };
 }

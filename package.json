@@ -9,13 +9,14 @@
   },
   "dependencies": {
     "@armathai/lego": "^4.0.2",
-    "@types/dat.gui": "^0.7.7",
     "@types/animejs": "^3.1.4",
+    "@types/dat.gui": "^0.7.7",
     "animejs": "^3.2.1",
     "dat.gui": "^0.7.7",
     "file-loader": "^6.2.0",
     "gltf-webpack-loader": "^1.0.6",
-    "three": "~0.137.0"
+    "three": "~0.137.0",
+    "three-joystick": "^1.0.2"
   },
   "devDependencies": {
     "@types/three": "^0.137.0",
