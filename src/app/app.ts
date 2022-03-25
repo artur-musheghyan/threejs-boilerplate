@@ -7,11 +7,13 @@ import {
 } from "three";
 import { RotationJoystickControls } from "three-joystick";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
+import { OutlinePass } from "three/examples/jsm/postprocessing/OutlinePass";
+import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
 import { DEBUG, miniCameraSize } from "../constants/constants";
 import { CustomStats } from "../utils/custom-stats";
 import { GameCamera } from "./game-camera";
 import { GameScene } from "./game-scene";
-import { Joystick } from "./joystick";
 import { UICamera } from "./ui-camera";
 import { UIScene } from "./ui-scene";
 
@@ -26,6 +28,9 @@ export class App {
   private _controls: OrbitControls;
   private _raycaster: Raycaster;
   private _joystickControls: RotationJoystickControls;
+  private _effectComposer: EffectComposer;
+  private _renderPass: RenderPass;
+  private _outlinePass: OutlinePass;
 
   constructor() {
     // addEventListener("resize", this._onResize);
@@ -34,6 +39,10 @@ export class App {
 
   public get scene(): GameScene {
     return this._scene;
+  }
+
+  public get outlinePass(): OutlinePass {
+    return this._outlinePass;
   }
 
   public get camera(): GameCamera {
@@ -57,11 +66,26 @@ export class App {
     this._initStats();
     this._initControls();
     this._initJoystick();
+    this._initEffectComposer();
 
     this._raycaster = new Raycaster();
 
     // Start update loop
     this._render();
+  }
+
+  private _initEffectComposer(): void {
+    this._effectComposer = new EffectComposer(this._renderer);
+    this._renderPass = new RenderPass(this._scene, this._camera);
+    this._effectComposer.setSize(innerWidth, innerHeight);
+    this._effectComposer.addPass(this._renderPass);
+    this._outlinePass = new OutlinePass(
+      new Vector2(innerWidth, innerHeight),
+      this._scene,
+      this._camera
+    );
+
+    this._effectComposer.addPass(this._outlinePass);
   }
 
   private _onPointerMove = (event: PointerEvent) => {
@@ -86,13 +110,14 @@ export class App {
 
   private _adjustCanvasSize = (): void => {
     this._renderer.setSize(innerWidth, innerHeight);
+    this._effectComposer.setSize(innerWidth, innerHeight);
 
     // this._camera.aspect = innerWidth / innerHeight;
     // this._camera.updateProjectionMatrix();
   };
 
   private _render = (): void => {
-    this._joystickControls.update();
+    // this._joystickControls.update();
     this._scene.updateLoop();
 
     const cameraDimensions = {
@@ -135,7 +160,8 @@ export class App {
     );
     this._renderer.setScissorTest(true);
     // this._renderer.setClearColor(new Color(0.5, 0.5, 0.7));
-    this._renderer.render(this._scene, this._camera);
+    // this._renderer.render(this._scene, this._camera);
+    this._effectComposer.render();
 
     // UICamera
     this._renderer.setViewport(
@@ -210,6 +236,6 @@ export class App {
   };
 
   private _initJoystick = (): void => {
-    this._joystickControls = new Joystick(this._camera, this._scene);
+    // this._joystickControls = new Joystick(this._camera, this._scene);
   };
 }

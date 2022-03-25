@@ -1,11 +1,26 @@
-import { AxesHelper, Scene, Sphere } from "three";
+import {
+  AnimationMixer,
+  AxesHelper,
+  DirectionalLight,
+  LoopOnce,
+  Scene,
+  Sphere,
+} from "three";
+import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+// import { OutlinePass } from "three/examples/jsm/postprocessing/OutlinePass";
 import { DEBUG } from "../constants/constants";
 import { BrickComponent } from "../views/brick-component";
 import { CoinComponent } from "../views/coin-component";
 import { GroundComponent } from "../views/ground-component";
 import { PlayerView } from "../views/player-view";
+import { app } from "./main";
 
 export class GameScene extends Scene {
+  public mixer: AnimationMixer;
+  public loader = new GLTFLoader();
+  public dracoLoader = new DRACOLoader();
+
   private _player: PlayerView;
   private _ground: GroundComponent;
   private _groundBounds: Sphere;
@@ -15,12 +30,69 @@ export class GameScene extends Scene {
   constructor() {
     super();
 
+    this.dracoLoader.setDecoderPath("src/libs/draco/");
+    this.dracoLoader.setDecoderConfig({ type: "js" });
+    this.loader.setDRACOLoader(this.dracoLoader);
+
     if (DEBUG) {
       const axesHelper = new AxesHelper(5);
       this.add(axesHelper);
     }
 
     this._build();
+
+    const dirLight = new DirectionalLight(0xffffff);
+    dirLight.position.set(-3, 4, 4);
+    dirLight.intensity = 2;
+    this.add(dirLight);
+
+    this.loader.load("../../assets/test_pers.glb", (gltf) => {
+      const model = gltf.scene;
+      const animations = gltf.animations;
+      app.outlinePass.selectedObjects = [model];
+
+      setInterval(() => {
+        model.rotateY(0.001);
+      });
+
+      this.mixer = new AnimationMixer(model);
+
+      const attackAction = this.mixer.clipAction(animations[0]);
+      attackAction.clampWhenFinished = true;
+      attackAction.loop = LoopOnce;
+
+      const idleAction = this.mixer.clipAction(animations[1]);
+      const runAction = this.mixer.clipAction(animations[2]);
+
+      idleAction.play();
+
+      this.mixer.addEventListener("finished", () => {
+        attackAction.fadeOut(0.3);
+        runAction.fadeIn(0.3);
+        runAction
+          .reset()
+          .setEffectiveTimeScale(1)
+          .setEffectiveWeight(1)
+          .fadeIn(0.3)
+          .play();
+      });
+
+      setInterval(() => {
+        console.warn("attack");
+        idleAction.fadeOut(0.3);
+        runAction.fadeOut(0.3);
+
+        attackAction.fadeIn(0.3);
+        attackAction
+          .reset()
+          .setEffectiveTimeScale(1)
+          .setEffectiveWeight(1)
+          .fadeIn(0.3)
+          .play();
+      }, 4000);
+
+      this.add(model);
+    });
   }
 
   public get player(): PlayerView {
@@ -36,6 +108,8 @@ export class GameScene extends Scene {
   }
 
   public updateLoop(): void {
+    this.mixer && this.mixer.update(0.04);
+
     this._bricks.forEach((brick) => {
       const sphere = new Sphere();
       // @ts-ignore
@@ -52,9 +126,9 @@ export class GameScene extends Scene {
 
   private _build(): void {
     this._buildGround();
-    this._buildPlayer();
-    this._buildBricks();
-    this._buildCoins();
+    // this._buildPlayer();
+    // this._buildBricks();
+    // this._buildCoins();
   }
 
   private _buildGround(): void {
