@@ -217,7 +217,7 @@ export class App {
         0.1,
         10000
       );
-      this._debugCamera.position.set(3, 3, 20);
+      this._debugCamera.position.set(12, 17, 20);
       this._debugCamera.lookAt(new Vector3(0, 0, 0));
     }
   };

@@ -35,7 +35,11 @@ module.exports = {
           },
         ],
       },
-
+      {
+        test: /\.(glsl)$/,
+        exclude: /node_modules/,
+        use: "raw-loader",
+      },
       {
         test: /\.(bin)$/,
         use: [

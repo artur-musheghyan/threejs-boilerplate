@@ -5,6 +5,7 @@
     "noImplicitAny": true,
     "module": "commonjs",
     "strict": true,
-    "strictPropertyInitialization": false
+    "strictPropertyInitialization": false,
+    "moduleResolution": "node"
   }
 }
