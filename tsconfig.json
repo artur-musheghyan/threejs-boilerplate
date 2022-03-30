@@ -6,6 +6,7 @@
     "module": "commonjs",
     "strict": true,
     "strictPropertyInitialization": false,
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "strictNullChecks": false
   }
 }

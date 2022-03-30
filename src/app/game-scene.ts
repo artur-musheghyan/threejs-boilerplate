@@ -2,10 +2,8 @@ import {
   AnimationMixer,
   AxesHelper,
   BufferAttribute,
-  Clock,
   DirectionalLight,
   DoubleSide,
-  LoopOnce,
   Mesh,
   PlaneGeometry,
   RawShaderMaterial,
@@ -13,40 +11,30 @@ import {
   Sphere,
   Vector3,
 } from "three";
-import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 // import { OutlinePass } from "three/examples/jsm/postprocessing/OutlinePass";
 import { DEBUG } from "../constants/constants";
 // @ts-ignore
 import testFragmentShader from "../shaders/test/fragment.glsl";
 // @ts-ignore
 import testVertexShader from "../shaders/test/vertex.glsl";
+import { AvatarComponent } from "../views/avatar-component";
 import { BrickComponent } from "../views/brick-component";
 import { CoinComponent } from "../views/coin-component";
 import { GroundComponent } from "../views/ground-component";
 import { PlayerView } from "../views/player-view";
-import { app } from "./main";
 
 export class GameScene extends Scene {
   public mixer: AnimationMixer;
-  public loader = new GLTFLoader();
-  public dracoLoader = new DRACOLoader();
-  public clock: Clock;
 
   private _player: PlayerView;
   private _ground: GroundComponent;
   private _groundBounds: Sphere;
+  private _avatar: AvatarComponent;
   private _bricks: BrickComponent[] = [];
   private _coins: CoinComponent[] = [];
 
   constructor() {
     super();
-
-    this.clock = new Clock();
-
-    this.dracoLoader.setDecoderPath("src/libs/draco/");
-    this.dracoLoader.setDecoderConfig({ type: "js" });
-    this.loader.setDRACOLoader(this.dracoLoader);
 
     if (DEBUG) {
       const axesHelper = new AxesHelper(5);
@@ -68,9 +56,10 @@ export class GameScene extends Scene {
     return this._groundBounds;
   }
 
-  public updateLoop(): void {
-    this.mixer && this.mixer.update(0.04);
+  public update(deltaTime: number): void {
+    this._avatar && this._avatar.update(deltaTime);
 
+    // Manually hide/show bricks depended on the distance from player
     this._bricks.forEach((brick) => {
       const sphere = new Sphere();
       // @ts-ignore
@@ -88,11 +77,11 @@ export class GameScene extends Scene {
   private _build(): void {
     this._buildGround();
     this._buildLight();
-    this._buildModel();
-    // this._buildShaderPlane();
-    // this._buildPlayer();
-    // this._buildBricks();
-    // this._buildCoins();
+    this._buildAvatar();
+    // this._buildShaderPlaneTest();
+    this._buildPlayer();
+    this._buildBricks();
+    this._buildCoins();
   }
 
   _buildLight(): void {
@@ -102,7 +91,7 @@ export class GameScene extends Scene {
     this.add(dirLight);
   }
 
-  private _buildShaderPlane(): void {
+  private _buildShaderPlaneTest(): void {
     const geometry = new PlaneGeometry(7, 7, 100, 100);
 
     const vertexCount = geometry.attributes.position.count;
@@ -130,66 +119,21 @@ export class GameScene extends Scene {
 
     this.add(mesh);
 
-    setInterval(() => {
-      for (let i = 0; i < vertexCount; i++) {
-        randoms[i] = Math.random();
-      }
+    // setInterval(() => {
+    //   for (let i = 0; i < vertexCount; i++) {
+    //     randoms[i] = Math.random();
+    //   }
 
-      geometry.setAttribute("aRandom", new BufferAttribute(randoms, 1));
+    //   geometry.setAttribute("aRandom", new BufferAttribute(randoms, 1));
 
-      // material.uniforms.uTime.value = this.clock.getElapsedTime();
-      mesh.position.z = Math.sin(this.clock.getElapsedTime() * 0.6) * 6;
-    }, 80);
+    //   // material.uniforms.uTime.value = this.clock.getElapsedTime();
+    //   mesh.position.z = Math.sin(this.clock.getElapsedTime() * 0.6) * 6;
+    // }, 80);
   }
 
-  private _buildModel(): void {
-    this.loader.load("../../assets/test_pers.glb", (gltf) => {
-      const model = gltf.scene;
-      const animations = gltf.animations;
-      app.outlinePass.selectedObjects = [model];
-
-      setInterval(() => {
-        model.rotateY(0.001);
-      });
-
-      this.mixer = new AnimationMixer(model);
-
-      const attackAction = this.mixer.clipAction(animations[0]);
-      attackAction.clampWhenFinished = true;
-      attackAction.loop = LoopOnce;
-
-      const idleAction = this.mixer.clipAction(animations[1]);
-      const runAction = this.mixer.clipAction(animations[2]);
-
-      idleAction.play();
-
-      this.mixer.addEventListener("finished", () => {
-        attackAction.fadeOut(0.3);
-        runAction.fadeIn(0.3);
-        runAction
-          .reset()
-          .setEffectiveTimeScale(1)
-          .setEffectiveWeight(1)
-          .fadeIn(0.3)
-          .play();
-      });
-
-      setInterval(() => {
-        console.warn("attack");
-        idleAction.fadeOut(0.3);
-        runAction.fadeOut(0.3);
-
-        attackAction.fadeIn(0.3);
-        attackAction
-          .reset()
-          .setEffectiveTimeScale(1)
-          .setEffectiveWeight(1)
-          .fadeIn(0.3)
-          .play();
-      }, 4000);
-
-      this.add(model);
-    });
+  private _buildAvatar(): void {
+    this._avatar = new AvatarComponent();
+    this.add(this._avatar);
   }
 
   private _buildGround(): void {
@@ -197,6 +141,7 @@ export class GameScene extends Scene {
     this.add((this._ground = ground));
 
     ground.geometry.computeBoundingSphere();
+
     // @ts-ignore
     const { center, radius } = ground.geometry.boundingSphere;
     this._groundBounds = new Sphere().set(center, radius);

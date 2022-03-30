@@ -1,4 +1,5 @@
 import {
+  Clock,
   PerspectiveCamera,
   Raycaster,
   Vector2,
@@ -14,6 +15,7 @@ import { DEBUG, miniCameraSize } from "../constants/constants";
 import { CustomStats } from "../utils/custom-stats";
 import { GameCamera } from "./game-camera";
 import { GameScene } from "./game-scene";
+import { Joystick } from "./joystick";
 import { UICamera } from "./ui-camera";
 import { UIScene } from "./ui-scene";
 
@@ -31,8 +33,10 @@ export class App {
   private _effectComposer: EffectComposer;
   private _renderPass: RenderPass;
   private _outlinePass: OutlinePass;
+  private _clock: Clock;
 
   constructor() {
+    this._clock = new Clock();
     // addEventListener("resize", this._onResize);
     document.addEventListener("pointermove", this._onPointerMove);
   }
@@ -117,8 +121,10 @@ export class App {
   };
 
   private _render = (): void => {
-    // this._joystickControls.update();
-    this._scene.updateLoop();
+    const deltaTime = this._clock.getDelta();
+
+    this._joystickControls.update();
+    this._scene.update(deltaTime);
 
     const cameraDimensions = {
       width: innerWidth,
@@ -236,6 +242,6 @@ export class App {
   };
 
   private _initJoystick = (): void => {
-    // this._joystickControls = new Joystick(this._camera, this._scene);
+    this._joystickControls = new Joystick(this._camera, this._scene);
   };
 }
