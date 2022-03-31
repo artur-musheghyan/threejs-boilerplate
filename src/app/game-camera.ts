@@ -6,8 +6,9 @@ export class GameCamera extends PerspectiveCamera {
   private _helper: CameraHelper;
 
   constructor() {
-    super(20, innerWidth / innerHeight, 10, 65);
-    this.position.set(0, 40, 30);
+    super(60, innerWidth / innerHeight, 10, 65);
+    this.position.set(0, 20, 20);
+    this.lookAt(new Vector3(0, 0, 0));
     this._centralize();
 
     if (DEBUG) {
@@ -35,12 +36,6 @@ export class GameCamera extends PerspectiveCamera {
       //   "lookAt"
       // );
     }
-  }
-
-  public updateFollowingPosition(position: Vector3): void {
-    const { x, y, z } = position;
-    this.position.set(x, y + 40, z + 30);
-    this.lookAt(position);
   }
 
   private _centralize = (): void => {
