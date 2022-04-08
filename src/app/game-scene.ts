@@ -4,6 +4,7 @@ import {
   DirectionalLight,
   Scene,
   Sphere,
+  Vector3,
 } from "three";
 // import { OutlinePass } from "three/examples/jsm/postprocessing/OutlinePass";
 import { DEBUG } from "../constants/constants";
@@ -12,6 +13,7 @@ import { BrickComponent } from "../views/brick-component";
 import { CoinComponent } from "../views/coin-component";
 import { GroundComponent } from "../views/ground-component";
 import { PlayerView } from "../views/player-view";
+import { app } from "./main";
 
 export class GameScene extends Scene {
   public mixer: AnimationMixer;
@@ -52,6 +54,28 @@ export class GameScene extends Scene {
     this._bricks.forEach((b) => b.update(this._player.position));
     this._coins.forEach((c) => c.update(this._player.position));
     this._ground.update(this._player.position);
+
+    //..............
+    // @ts-ignore
+    const selectedBricks = [];
+    this._bricks.forEach((brick) => {
+      const playerPos = new Vector3().copy(this._player.position);
+      const brickPos = new Vector3().copy(brick.position);
+      const fromPlayerToBrick = brickPos.sub(playerPos);
+      const distToBrick = fromPlayerToBrick.length();
+      const dirNormal = fromPlayerToBrick.normalize();
+      const scalar = dirNormal.dot(this.player.direction);
+
+      brick.alpha = distToBrick <= 4 ? 1 : 0;
+
+      if (scalar >= 0.8 && distToBrick <= 3) {
+        selectedBricks.push(brick);
+      }
+    });
+    // @ts-ignore
+    app.outlinePass.selectedObjects = [...selectedBricks];
+
+    //..............
 
     // Manually hide/show bricks depended on the distance from player
     // this._bricks.forEach((brick) => {
@@ -106,7 +130,7 @@ export class GameScene extends Scene {
   }
 
   private _buildBricks(): void {
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 10; i++) {
       const brick = new BrickComponent();
       this.add(brick);
       this._bricks.push(brick);

@@ -7,7 +7,6 @@ import {
 } from "three";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
-import { app } from "../app/main";
 
 export class AvatarComponent extends Group {
   private _loader: GLTFLoader;
@@ -74,7 +73,7 @@ export class AvatarComponent extends Group {
   }
 
   public showOutline(): void {
-    app.outlinePass.selectedObjects = [this._model];
+    // app.outlinePass.selectedObjects = [this._model];
   }
 
   // public hideOutline(): void {

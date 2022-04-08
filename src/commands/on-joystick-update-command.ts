@@ -23,5 +23,5 @@ export const onJoystickUpdateCommand = (normal: Vector2): void => {
     camera.updateFollowingPosition(player.position);
   }
 
-  player.rotation.set(0, -angle, 0);
+  player.rotation.set(0, -angle + Math.PI / 2, 0);
 };

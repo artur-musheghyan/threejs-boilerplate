@@ -28,14 +28,6 @@ module.exports = {
         exclude: /node_modules/,
       },
       {
-        test: /\.(gltf)$/,
-        use: [
-          {
-            loader: "gltf-webpack-loader",
-          },
-        ],
-      },
-      {
         test: /\.(glsl)$/,
         exclude: /node_modules/,
         use: "raw-loader",
