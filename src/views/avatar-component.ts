@@ -2,8 +2,10 @@ import {
   AnimationAction,
   AnimationClip,
   AnimationMixer,
+  AxesHelper,
   Group,
   LoopOnce,
+  Vector3,
 } from "three";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
@@ -18,6 +20,8 @@ export class AvatarComponent extends Group {
 
   constructor() {
     super();
+    this.add(new AxesHelper(3));
+
     this._loader = new GLTFLoader();
 
     this._dracoLoader.setDecoderPath("src/libs/draco/");
@@ -26,13 +30,22 @@ export class AvatarComponent extends Group {
 
     this._loader.load("../../assets/character.glb", (gltf) => {
       this._model = gltf.scene;
+      this._model.rotateOnAxis(new Vector3(0, 1, 0), Math.PI / 4);
       this._mixer = new AnimationMixer(this._model);
       this.add(this._model);
 
       this._initActions(gltf.animations);
 
-      this.idle();
+      this.run();
     });
+  }
+
+  public get direction(): Vector3 {
+    return this.getWorldDirection(new Vector3());
+  }
+
+  public updatePosition(x: number, y: number, z: number): void {
+    this.position.set(x, y, z);
   }
 
   public update(deltaTime: number): void {

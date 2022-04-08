@@ -12,16 +12,15 @@ import { AvatarComponent } from "../views/avatar-component";
 import { BrickComponent } from "../views/brick-component";
 import { CoinComponent } from "../views/coin-component";
 import { GroundComponent } from "../views/ground-component";
-import { PlayerView } from "../views/player-view";
 import { app } from "./main";
 
 export class GameScene extends Scene {
   public mixer: AnimationMixer;
 
-  private _player: PlayerView;
+  private _player: AvatarComponent;
   private _ground: GroundComponent;
   private _groundBounds: Sphere;
-  private _avatar: AvatarComponent;
+  // private _avatar: AvatarComponent;
   private _bricks: BrickComponent[] = [];
   private _coins: CoinComponent[] = [];
 
@@ -36,7 +35,7 @@ export class GameScene extends Scene {
     this._build();
   }
 
-  public get player(): PlayerView {
+  public get player(): AvatarComponent {
     return this._player;
   }
 
@@ -49,7 +48,8 @@ export class GameScene extends Scene {
   }
 
   public update(deltaTime: number): void {
-    this._avatar && this._avatar.update(deltaTime);
+    // this._avatar && this._avatar.update(deltaTime);
+    this._player && this._player.update(deltaTime);
 
     this._bricks.forEach((b) => b.update(this._player.position));
     this._coins.forEach((c) => c.update(this._player.position));
@@ -74,22 +74,6 @@ export class GameScene extends Scene {
     });
     // @ts-ignore
     app.outlinePass.selectedObjects = [...selectedBricks];
-
-    //..............
-
-    // Manually hide/show bricks depended on the distance from player
-    // this._bricks.forEach((brick) => {
-    //   const sphere = new Sphere();
-    //   // @ts-ignore
-    //   sphere.copy(brick.geometry.boundingSphere);
-    //   sphere.applyMatrix4(brick.matrix);
-
-    //   if (this._player.visibleArea.intersectsSphere(sphere)) {
-    //     brick.visible = true;
-    //   } else {
-    //     brick.visible = false;
-    //   }
-    // });
   }
 
   private _build(): void {
@@ -109,8 +93,8 @@ export class GameScene extends Scene {
   }
 
   private _buildAvatar(): void {
-    this._avatar = new AvatarComponent();
-    this.add(this._avatar);
+    // this._avatar = new AvatarComponent();
+    // this.add(this._avatar);
   }
 
   private _buildGround(): void {
@@ -125,7 +109,7 @@ export class GameScene extends Scene {
   }
 
   private _buildPlayer(): void {
-    const player = new PlayerView();
+    const player = new AvatarComponent();
     this.add((this._player = player));
   }
 
