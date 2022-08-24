@@ -1,4 +1,4 @@
-import { AxesHelper, DirectionalLight, Scene } from "three";
+import { AxesHelper, Color, DirectionalLight, Scene } from "three";
 import { DEBUG } from "../constants/constants";
 import { GroundComponent } from "../views/ground-component";
 
@@ -12,6 +12,8 @@ export class GameScene extends Scene {
       const axesHelper = new AxesHelper(5);
       this.add(axesHelper);
     }
+
+    this.background = new Color(0x506680);
 
     this._build();
   }
