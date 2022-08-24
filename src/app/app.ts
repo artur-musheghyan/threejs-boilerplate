@@ -104,6 +104,7 @@ export class App {
       canvas: <HTMLCanvasElement>document.getElementById("main-canvas"),
     });
     this._renderer.setSize(innerWidth, innerHeight);
+    this._renderer.shadowMap.enabled = true;
   };
 
   private _initGameCamera = (): void => {
